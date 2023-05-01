@@ -66,7 +66,7 @@ class Net(nn.Module):
         prod = n1 * n2 * n3 * n4 * n5 * n6
         return prod
 
-    def train_(self, X, y, nb_epoch, batch_size, loss_type, learning_rate=1e-2, stopping_loss=5 * 1e-2, normalise=False):
+    def train_(self, X, y, nb_epoch, batch_size, loss_type, learning_rate=1e-2, stopping_loss=1e-3, normalise=False):
         loss_l = []
         if loss_type == 1:
             criterion = nn.L1Loss()
@@ -77,7 +77,7 @@ class Net(nn.Module):
         loss = 1
         nb_normalise = nb_epoch/3
         while num_epoch <= nb_epoch and (loss > stopping_loss or num_epoch <= nb_normalise+1):
-            # --- START CODE HERE (09)
+
             batch = rng.integers(low=0, high=len(X), size=batch_size)
             hat_y = self.forward(X[batch])  # Forward pass: Compute predicted y by passing x to the model
             y_batch = np.reshape(y[batch], (len(batch), -1))
@@ -88,7 +88,6 @@ class Net(nn.Module):
             loss.backward()  # perform back-propagation
             with torch.no_grad():  # update the weights
                 for param in self.parameters():
-                    # print(param.grad)
                     param -= learning_rate * param.grad
                 if num_epoch >= nb_normalise:
                     if normalise == 's':
@@ -100,8 +99,8 @@ class Net(nn.Module):
             loss_l.append(loss.item())
 
             if num_epoch % 1000 == 0:
-                print('epoch {}, loss {}'.format(num_epoch, loss.item()))
+                print("epoch {}, loss {}".format(num_epoch, loss.item()))
                 print("weight6 = ", torch.linalg.vector_norm(self.fc6.weight.data))
                 print("prod = ", self.prod_lip())
             num_epoch += 1
-        print('Ended on epoch {} with loss {}'.format(num_epoch, loss.item()))
+        print("Ended on epoch {} with loss {}".format(num_epoch, loss.item()))

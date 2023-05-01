@@ -1,11 +1,10 @@
 import numpy as np
-import torch
 from torch.nn import functional as func
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 print(mpl.get_backend())
 
-import network
+from network import scalar_network
 from activations import *
 
 start = -3
@@ -31,7 +30,7 @@ d = deepspline.DeepSpline()
 g2 = groupsort.GroupSort(num_units=2)
 g4 = groupsort.GroupSort(num_units=4)
 
-nn = network.Net(1, 100, 1, activation=d)
+nn = scalar_network.Net(1, 100, 1, activation=d)
 nn.train_(X, y,
               nb_epoch=15000,
               batch_size=30,
