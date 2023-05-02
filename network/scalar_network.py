@@ -51,6 +51,20 @@ class Net(nn.Module):
         self.fc5.weight.data = self.fc5.weight.data / max(n5, 1)
         self.fc6.weight.data = self.fc6.weight.data / max(n6, 1)
 
+    def normaliseSpectralForce(self):
+        n1 = torch.linalg.vector_norm(self.fc1.weight.data)
+        n2 = torch.linalg.matrix_norm(self.fc2.weight.data, ord=2)
+        n3 = torch.linalg.matrix_norm(self.fc3.weight.data, ord=2)
+        n4 = torch.linalg.matrix_norm(self.fc4.weight.data, ord=2)
+        n5 = torch.linalg.matrix_norm(self.fc5.weight.data, ord=2)
+        n6 = torch.linalg.vector_norm(self.fc6.weight.data)
+        self.fc1.weight.data = self.fc1.weight.data / n1
+        self.fc2.weight.data = self.fc2.weight.data / n2
+        self.fc3.weight.data = self.fc3.weight.data / n3
+        self.fc4.weight.data = self.fc4.weight.data / n4
+        self.fc5.weight.data = self.fc5.weight.data / n5
+        self.fc6.weight.data = self.fc6.weight.data / n6
+
     def prod_lip(self):
         n1 = torch.linalg.vector_norm(self.fc1.weight.data)
         n2 = torch.linalg.matrix_norm(self.fc2.weight.data, ord=2)
@@ -84,7 +98,9 @@ class Net(nn.Module):
                 for param in self.parameters():
                     param -= learning_rate * param.grad
                 if num_epoch >= nb_normalise:
-                    if normalise == 's':
+                    if normalise == 'sf':
+                        self.normaliseSpectral()
+                    elif normalise == 's':
                         self.normaliseSpectral()
                     elif normalise == 'i':
                         self.normaliseInfty()
