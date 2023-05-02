@@ -15,17 +15,12 @@ class Net(nn.Module):
         self.act = activation
 
     def forward(self, x):
-        x = np.reshape(x, (len(x), -1))
-        x = torch.tensor(x)
-        x = x.to(torch.float32)
-
         x = self.act(self.fc1(x))
         x = self.act(self.fc2(x))
         x = self.act(self.fc3(x))
         x = self.act(self.fc4(x))
         x = self.act(self.fc5(x))
         x = self.fc6(x)
-
         return x
 
     def normaliseSpectral(self):
@@ -66,7 +61,7 @@ class Net(nn.Module):
         prod = n1 * n2 * n3 * n4 * n5 * n6
         return prod
 
-    def train_(self, X, y, nb_epoch, batch_size, loss_type, learning_rate=1e-2, stopping_loss=1e-3, normalise=False):
+    def train_(self, X, y, nb_epoch, batch_size, loss_type, learning_rate=1e-2, stopping_loss=1e-6, normalise=False):
         loss_l = []
         if loss_type == 1:
             criterion = nn.L1Loss()
@@ -76,12 +71,11 @@ class Net(nn.Module):
         num_epoch = 0
         loss = 1
         nb_normalise = nb_epoch/3
-        while num_epoch <= nb_epoch and (loss > stopping_loss or num_epoch <= nb_normalise+1):
+        while num_epoch <= nb_epoch and (loss > stopping_loss or num_epoch <= nb_normalise+100):
 
             batch = rng.integers(low=0, high=len(X), size=batch_size)
             hat_y = self.forward(X[batch])  # Forward pass: Compute predicted y by passing x to the model
-            y_batch = np.reshape(y[batch], (len(batch), -1))
-            y_batch = torch.tensor(y_batch).float()
+            y_batch = y[batch]
             loss = criterion(hat_y, y_batch)  # Compute loss
             # Zero gradients, perform a backward pass, and update the weights.
             self.zero_grad()  # re-init the gradients (otherwise they are cumulated)

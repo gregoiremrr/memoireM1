@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from torch.nn import functional as func
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -12,6 +13,9 @@ end = 3
 nb_data = 100
 
 X = np.linspace(start, end, nb_data)
+X = np.reshape(X, (len(X), -1))
+X = torch.tensor(X)
+X = X.to(torch.float32)
 
 #f = np.cos
 #f = np.sin
@@ -20,6 +24,8 @@ X = np.linspace(start, end, nb_data)
 #f = np.arctan
 f = np.abs
 y = f(X)
+y = np.reshape(y, (len(y), -1))
+y = torch.tensor(y)
 
 # with errors
 #X = np.concatenate((X,np.array([1])))
@@ -30,13 +36,13 @@ d = deepspline.DeepSpline()
 g2 = groupsort.GroupSort(num_units=2)
 g4 = groupsort.GroupSort(num_units=4)
 
-nn = scalar_network.Net(1, 100, 1, activation=d)
+nn = scalar_network.Net(1, 100, 1, activation=g2)
 nn.train_(X, y,
-              nb_epoch=15000,
+              nb_epoch=10000,
               batch_size=30,
               loss_type=2,
               learning_rate=1e-2,
-              stopping_loss=1e-3,
+              stopping_loss=1e-4,
               normalise = 's')
 
 fig, ax = plt.subplots()
@@ -53,4 +59,8 @@ plt.show()
 print("coeff1 = ", d(torch.tensor(0))-d(torch.tensor(-1)))
 print("coeff2 = ", d(torch.tensor(1))-d(torch.tensor(0)))
 print("coeff2 = ", d(torch.tensor(2))-d(torch.tensor(1)))
+
+fig2, ax2 = plt.subplots()
+ax2.plot(X, nn(X).detach().numpy()-y, 'x', color='g', label="Neural network")
+plt.show()
 """
