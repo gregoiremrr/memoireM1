@@ -114,3 +114,4 @@ class Net(nn.Module):
                 print("prod = ", self.prod_lip())
             num_epoch += 1
         print("Ended on epoch {} with loss {}".format(num_epoch, loss.item()))
+
