@@ -2,3 +2,4 @@
 .idea/
 __pycache__/
 wgan_github.py
+mnist_test.csv
