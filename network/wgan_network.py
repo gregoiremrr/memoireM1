@@ -3,15 +3,21 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as func
 
-from network import scalar_network
+from network import conv_network
 
 
 class WGAN(nn.Module):
-    def __init__(self, activation, n_in, n_h, z_dim):
+    def __init__(self, n_in, n_h, n_out, z_dim):
         super(WGAN, self).__init__()
         self.z_dim = z_dim
-        self.generator = scalar_network.Net(z_dim, n_h, n_in, activation=torch.tanh)#func.relu)
-        self.discriminator = scalar_network.Net(n_in, n_h, 1, activation=activation)
+        self.generator = conv_network.Generator(in_channels=z_dim,
+                                                h_channels=n_h,
+                                                out_channels=n_out,
+                                                kernel_size=3)
+        self.discriminator = conv_network.Discriminator(in_channels=n_in,
+                                                        h_channels=n_h,
+                                                        out_channels=n_out,
+                                                        kernel_size=3)
 
     def train_(self, x, nb_epoch, batch_size, n_critic, generator_learning_rate=1e-2, discriminator_learning_rate=1e-2, normalise='s'):
 

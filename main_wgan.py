@@ -9,11 +9,6 @@ print(mpl.get_backend())
 from network import wgan_network
 from activations import *
 
-r = func.relu
-d = deepspline.DeepSpline()
-g2 = groupsort.GroupSort(num_units=2)
-g4 = groupsort.GroupSort(num_units=4)
-
 file = "/Users/gregoiremourre/Desktop/cifar-10-batches-py/data_batch_1"
 
 
@@ -30,29 +25,31 @@ print(data_batch_1.keys())
 
 labels = data_batch_1[b'labels']
 data = data_batch_1[b'data']
-#data = data.reshape(len(data), 3, 32, 32).transpose(0, 2, 3, 1)
+# data = data.reshape(len(data), 3, 32, 32).transpose(0, 2, 3, 1)
 
 data2 = []
 
 for i in range(len(labels)):
     if labels[i] == 8:
-        data2.append(data[i])
+        data2.append(data[i].reshape(3,32,32))
 
-data2 = np.reshape(data2, (len(data2), -1))
+#data2 = np.reshape(data2, (len(data2), -1))
 data2 = torch.Tensor(data2).to(torch.float32)
+print(data2.shape)
 
-n_in = 3072
+n_in = 3
 n_h = 512
+n_out = 3
 z_dim = 10
 
-netWGAN = wgan_network.WGAN(d, n_in, n_h, z_dim)
+netWGAN = wgan_network.WGAN(n_in, n_h, n_out, z_dim)
 netWGAN.train_(data2,
-                nb_epoch=3000,
-                batch_size=20,
-                n_critic=10,
-                generator_learning_rate=1e-2,
-                discriminator_learning_rate=1e-3,
-                normalise='sf')
+               nb_epoch=3000,
+               batch_size=20,
+               n_critic=10,
+               generator_learning_rate=1e-2,
+               discriminator_learning_rate=1e-3,
+               normalise='sf')
 
 test = np.random.multivariate_normal(np.zeros(z_dim), np.eye(z_dim), size=1)
 test = torch.tensor(test).to(torch.float32)
